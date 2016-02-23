@@ -1,4 +1,4 @@
-package dk.emstar.data.datacrawler;
+package dk.emstar.data.datadub;
 
 import static org.assertj.core.api.Fail.fail;
 
@@ -8,7 +8,7 @@ import org.junit.runner.RunWith;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
-import dk.emstar.data.datacrawler.configuration.SpringConfig;
+import dk.emstar.data.datadub.configuration.SpringConfig;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = {SpringConfig.class})

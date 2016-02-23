@@ -1,4 +1,4 @@
-package dk.emstar.data.datacrawler.toposort;
+package dk.emstar.data.datadub.toposort;
 
 public class Edge {
 	private final Node from;
