@@ -1,9 +1,12 @@
-package dk.emstar.data.datadub.metadata;
+package dk.emstar.data.datadub.events;
 
 import java.util.Map.Entry;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
+
+import dk.emstar.data.datadub.metadata.ColumnMetaData;
+import dk.emstar.data.datadub.metadata.TableData;
 
 public class ValuePropagator implements OnCellChangeSink {
 

@@ -16,6 +16,8 @@ public class TableMetadata {
 	private final Map<String, List<DownstreamReferenceColumnMetaData>> downstreamConstraints;
 	private final Map<String, List<UpstreamReferenceColumnMetaData>> upstreamConstraints;
 
+	public final String ROWACTION_COLUMN = "*ROWACTION*"; 
+	
 	public TableMetadata(TableNameIdentifier tableNameIdentifier, 
 			List<ColumnMetaData> columns, 
 			List<PrimaryKeyMetadata> primaryKeys, 

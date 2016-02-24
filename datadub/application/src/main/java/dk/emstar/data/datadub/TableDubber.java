@@ -5,13 +5,13 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
-import dk.emstar.data.datadub.fun.RowAction;
-import dk.emstar.data.datadub.fun.RowActionSelector;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
+import dk.emstar.data.datadub.modification.RowAction;
+import dk.emstar.data.datadub.modification.RowActionSelector;
 import dk.emstar.data.datadub.repository.TableDataRepository;
 
-public interface TableCopier {
+public interface TableDubber {
 
 	void persist(Map<TableNameIdentifier, TableData> sourceTables,
 			Map<TableNameIdentifier, Map<Long, RowAction>> actions, Map<TableNameIdentifier, TableData> mirrorTables,

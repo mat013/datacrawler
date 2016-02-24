@@ -17,11 +17,11 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import dk.emstar.data.datadub.configuration.SpringConfig;
-import dk.emstar.data.datadub.fun.RowAction;
-import dk.emstar.data.datadub.fun.RowActionSelector;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableMetadata;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
+import dk.emstar.data.datadub.modification.RowAction;
+import dk.emstar.data.datadub.modification.RowActionSelector;
 import dk.emstar.data.datadub.repository.TableDataRepository;
 
 @Import({SpringConfig.class})
@@ -31,15 +31,19 @@ public class Application implements CommandLineRunner {
 	
 	private final TableDataRepository sourceTableDataRepository;
 	private final TableDataRepository destinationTableDataRepository;
-	private final TableCopier tableCopier;
+	private final TableDubberFactory tableDubberFactory;
+
+	private final TableDubber tableDubber;
 
 	@Autowired
 	public Application(@Qualifier("sourceTableDataRepository") TableDataRepository sourceTableDataRepository,
 			@Qualifier("destinationTableDataRepository")  TableDataRepository destinationTableDataRepository,
-			TableCopier tableCopier) {
+			TableDubberFactory tableDubberFactory) {
 		this.sourceTableDataRepository = sourceTableDataRepository;
 		this.destinationTableDataRepository = destinationTableDataRepository;
-		this.tableCopier = tableCopier;
+		this.tableDubberFactory = tableDubberFactory;
+		this.tableDubber = tableDubberFactory.newTableDubber(sourceTableDataRepository, destinationTableDataRepository);
+		
 	}
 
 	@Override
@@ -56,19 +60,19 @@ public class Application implements CommandLineRunner {
 		
 		Predicate<TableNameIdentifier> whitelistPredicate = o -> true;
 
-		Map<TableNameIdentifier, TableData> sourceTables = tableCopier.findTableDataAndAssociated(sourceTable, whitelistPredicate, sourceTableDataRepository);
-		Map<TableNameIdentifier, TableData> mirrorTables = tableCopier.findMirrors(sourceTables, destinationTableDataRepository, sourceToMirrorMapper);
+		Map<TableNameIdentifier, TableData> sourceTables = tableDubber.findTableDataAndAssociated(sourceTable, whitelistPredicate, sourceTableDataRepository);
+		Map<TableNameIdentifier, TableData> mirrorTables = tableDubber.findMirrors(sourceTables, destinationTableDataRepository, sourceToMirrorMapper);
 
 		RowActionSelector rowActionCategorizer = new RowActionSelector() {
 			@Override
-			public RowAction select(Map<String, Object> sourceRow, Map<String, Object> destinationRow,
+			public RowAction selectAction(Map<String, Object> sourceRow, Map<String, Object> destinationRow,
 					TableMetadata sourceMetaData, TableMetadata destinationMetaData) {
-				return destinationRow == null ? RowAction.CREATE : RowAction.UNACCEPTED;
+				return destinationRow == null ? RowAction.COPY_ROW_RETAIN_KEY : RowAction.USE_EXISTING_ROW_LOOKUP_KEY;
 			}
 		};
 
-		Map<TableNameIdentifier, Map<Long, RowAction>> actions = tableCopier.determineAction(sourceTables, mirrorTables, rowActionCategorizer, sourceToMirrorMapper);
-		tableCopier.apply(actions, sourceTables, mirrorTables, destinationTableDataRepository, sourceToMirrorMapper);
+		Map<TableNameIdentifier, Map<Long, RowAction>> actions = tableDubber.determineAction(sourceTables, mirrorTables, rowActionCategorizer, sourceToMirrorMapper);
+		tableDubber.apply(actions, sourceTables, mirrorTables, destinationTableDataRepository, sourceToMirrorMapper);
 		for (TableData sourceTable1 : sourceTables.values()) {
 			logger.info("{}\r\n{}", sourceTable1.getTableIdentifier(), sourceTable1.toContent());
 		}
@@ -79,10 +83,10 @@ public class Application implements CommandLineRunner {
 			Map<Long, RowAction> actionList = actions.get(mirrorTableIdentifier);
 			
 			logger.info("{}\r\n{}", sourceTable1.getTableIdentifier(), 
-					Joiner.on("\r\n").join(tableCopier.getInsertStatements(destinationTableDataRepository, sourceTable1, mirrorTableData, actionList)));
+					Joiner.on("\r\n").join(tableDubber.getInsertStatements(destinationTableDataRepository, sourceTable1, mirrorTableData, actionList)));
 		}
 
-		tableCopier.persist(sourceTables, actions, mirrorTables, destinationTableDataRepository, sourceToMirrorMapper);
+		tableDubber.persist(sourceTables, actions, mirrorTables, destinationTableDataRepository, sourceToMirrorMapper);
 		
 	}
 

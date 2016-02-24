@@ -22,6 +22,10 @@ import dk.emstar.data.datadub.metadata.PrimaryKeyMetadata;
 import dk.emstar.data.datadub.metadata.TableMetadata;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
 import dk.emstar.data.datadub.metadata.UpstreamReferenceColumnMetaData;
+import dk.emstar.data.datadub.repository.mapper.ColumnMetadataRowMapper;
+import dk.emstar.data.datadub.repository.mapper.DownstreamReferenceColumnMetadataRowMapper;
+import dk.emstar.data.datadub.repository.mapper.PrimaryKeyMetadataRowMapper;
+import dk.emstar.data.datadub.repository.mapper.UpstreamReferenceColumnMetadataRowMapper;
 
 public class MetadataRepositoryImpl implements MetadataRepository {
 

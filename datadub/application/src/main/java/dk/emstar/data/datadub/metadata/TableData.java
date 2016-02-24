@@ -16,26 +16,24 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
-import dk.emstar.data.datadub.fun.RowAction;
-import dk.emstar.data.datadub.fun.RowActionSelector;
+import dk.emstar.data.datadub.events.OnCellChangeSink;
+import dk.emstar.data.datadub.modification.RowAction;
+import dk.emstar.data.datadub.modification.RowActionSelector;
 
+/**
+ * 
+ * TODO add merge operation, mutable or immutable, add upstream and downstream columns that are not possible to find from datadictionary 
+ * 
+ * @author mat013
+ *
+ */
 public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSink {
-
-//	private static final String ROWACTION = "*ROWACTION*";
 
 	private static final Logger logger = LoggerFactory.getLogger(TableData.class);
 	
 	private final TableMetadata tableMetaData;
 	private final Table<Long, String, Object> tableData = HashBasedTable.create();
 
-	@Deprecated
-	private final Map<TableNameIdentifier, TableData> downstreamTables = Maps.newHashMap();
-	
-	@Deprecated
-	private final Map<TableNameIdentifier, TableData> upstreamTables = Maps.newHashMap();
-	
-	@Deprecated
-	private final Map<ColumnMetaData, List<OnCellChangeSink>> sinkMap = Maps.newHashMap();
 	private final List<OnCellChangeSink> onCellChangeSinks = Lists.newArrayList();
 	
 	public TableData(TableMetadata tableMetaData, List<Map<String, Object>> rows) {
@@ -54,8 +52,6 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 					throw new RuntimeException(String.format("Error when inserting %x, %s, %s: %s", count, entry.getKey(), value, e.getMessage()), e);
 				}
 			}
-			
-//			tableData.put(count, ROWACTION, "ROWACTION");
 		}
 	}
 
@@ -112,96 +108,6 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 
 		return result;
 	}
-	
-
-	@Deprecated
-	public Table<Long, String, Object> getKeysValuesForUpstream(TableNameIdentifier tableNameIdentifier) {
-		Table<Long, String, Object> result = HashBasedTable.create();
-//
-//		List<UpstreamReferenceColumnMetadata> upstreamColumns = tableMetadata.getUpstreamColumns(tableNameIdentifier);
-//		Set<Map<String, Object>> unique = Sets.newHashSet();
-//
-//		for (Entry<Long, Map<String, Object>> row : tableData.rowMap().entrySet()) {
-//			Map<String, Object> keys = Maps.newHashMap();
-//			Map<String, Object> rowData = row.getValue();
-//			for (UpstreamReferenceColumnMetadata upStreamColumn : upstreamColumns) {
-//				keys.put(upStreamColumn.getForeignColumnName(), rowData.get(upStreamColumn.getColumnName()));
-//			}
-//			unique.add(keys);
-//		}
-//		
-//		long count = 0;
-//		for (Map<String, Object> map : unique) {
-//			for (Entry<String, Object> entry : map.entrySet()) {
-//				result.put(count++, entry.getKey(), entry.getValue());
-//			}
-//		}
-//
-//		return result;
-		throw new RuntimeException("Not implemented");
-	}
-	
-
-	@Deprecated
-	public Table<Long, String, Object> getKeysValuesForDownstream(TableNameIdentifier tableNameIdentifier) {
-//		Table<Long, String, Object> result = HashBasedTable.create();
-//
-//		List<DownstreamReferenceColumnMetaData> downstreamColumnOnTable = tableMetadata.getDownstreamColumns(tableNameIdentifier);
-//		
-//		List<PrimaryKeyMetadata> primaryKeys = tableMetadata.getPrimaryKeys();
-//		long count = 0;
-//		for (Entry<Long, Map<String, Object>> row : tableData.rowMap().entrySet()) {
-//			for (PrimaryKeyMetadata primaryKeyMetadata : primaryKeys) {
-//				ColumnMetadata column = primaryKeyMetadata.getColumn();
-//				try {
-//				String name = column.getName();
-//					DownstreamReferenceColumnMetaData referenceMetadata = downstreamColumnOnTable.stream().filter(o -> name.equals(o.getColumnName())).findFirst().get();
-//					result.put(count++, referenceMetadata.getForeignColumnName(), row.getValue().get(name));
-//				} catch(Exception e) {
-//					throw new RuntimeException(String.format("Exception caught while handling column %s: %s", column, e.getMessage()), e);
-//				}
-//			}
-//			count++;
-//		}
-//
-//		return result;
-		throw new RuntimeException("Not implemented");
-	}
-
-	
-	@Deprecated
-	public void addDownstream(TableData downstreamTable) {
-		downstreamTables.put(downstreamTable.getTableIdentifier(), downstreamTable);
-		// connect both ways
-		//		downstreamTable.upstreamTables.put(getTableName(), this);
-		
-//		List<List<DownstreamReferenceColumnMetaData>> downstreamReferenceColumnMetadatas = tableMetadata.getDownstreamColumns(downstreamTable.getTableIdentifier());
-//		for (DownstreamReferenceColumnMetaData downstreamReferenceColumnMetadata : downstreamReferenceColumnMetadatas) {
-//			ColumnMetadata column = tableMetadata.getColumn(downstreamReferenceColumnMetadata.getColumnName());
-//			
-//			ColumnMetadata columnToChange = downstreamTable.get(downstreamReferenceColumnMetadata);
-//			
-//			List<OnCellChangeSink> sinks = sinkMap.get(column);
-//			if(sinks == null) {
-//				sinks = Lists.newArrayList();
-//				sinkMap.put(column, sinks);
-//			}
-//			
-//			sinks.add(new ValuePropagator(downstreamTable, columnToChange));
-//		}
-		throw new RuntimeException("Not implemented");
-	}
-
-	@Deprecated
-	public void addUpstream(TableData upstreamTable) {
-		upstreamTable.addDownstream(this);
-	}
-
-	@Deprecated
-	private ColumnMetaData get(DownstreamReferenceColumnMetaData downstreamReferenceColumnMetadata) {
-		String columnName = downstreamReferenceColumnMetadata.getForeignColumnName();
-		return tableMetaData.getColumn(columnName);
-	}
 
 	public Object changeCell(String columnName, long row, Object to) {
 		if(tableData.size() < row) {
@@ -250,7 +156,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 	}
 
 	public Map<String, Object> getRow(Long rowId) {
-		return tableData.row(rowId);
+		return tableData.rowMap().remove(rowId);
 	}
 	
 	// TODO should be moved out
@@ -260,7 +166,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 		for (Entry<Map<String, Object>, Long> indexRow : getPrimaryKeysIndex().entrySet()) {
 			Map<String, Object> sourceRow = getRow(indexRow.getValue());
 			Map<String, Object> mirrorRow = mirrorTable.getRow(mirrorIndex.get(indexRow.getKey()));
-			result.put(indexRow.getValue(), rowAcceptor.select(sourceRow, mirrorRow, tableMetaData, mirrorTable.getMetadata()));
+			result.put(indexRow.getValue(), rowAcceptor.selectAction(sourceRow, mirrorRow, tableMetaData, mirrorTable.getMetadata()));
 		}
 		return result;
 	}

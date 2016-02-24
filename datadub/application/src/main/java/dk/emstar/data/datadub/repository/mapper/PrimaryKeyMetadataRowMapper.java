@@ -1,4 +1,4 @@
-package dk.emstar.data.datadub.repository;
+package dk.emstar.data.datadub.repository.mapper;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -1,4 +1,6 @@
-package dk.emstar.data.datadub.metadata;
+package dk.emstar.data.datadub.events;
+
+import dk.emstar.data.datadub.metadata.ColumnMetaData;
 
 public interface OnCellChangeSink {
 

@@ -15,7 +15,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.collect.Table;
 
-import dk.emstar.data.datadub.fun.RowAction;
 import dk.emstar.data.datadub.metadata.ColumnMetaData;
 import dk.emstar.data.datadub.metadata.DownstreamReferenceColumnMetaData;
 import dk.emstar.data.datadub.metadata.PrimaryKeyMetadata;
@@ -23,7 +22,9 @@ import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableMetadata;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
 import dk.emstar.data.datadub.metadata.UpstreamReferenceColumnMetaData;
+import dk.emstar.data.datadub.modification.RowAction;
 
+// TODO we should only copy real columns and not metadata columns
 
 public class TableDataRepositoryImpl implements TableDataRepository {
 
@@ -34,6 +35,9 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 
 	private final String schema;
 
+	private final Map<ColumnMetaData, NextPrimaryKeyGenerator> nextPrimaryKeyGenerators = Maps.newHashMap();
+	private final Map<Integer, NextPrimaryKeyGenerator> defaultNextPrimaryKeyGenerators = Maps.newHashMap();
+	
 	@Autowired
 	public TableDataRepositoryImpl(String schema, NamedParameterJdbcOperations sourceJdbcTemplate,
 			MetadataRepository metadataRepository) {  
@@ -60,12 +64,11 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 		PrimaryKeyMetadata primaryKey = primaryKeyMetadatas.get(0);
 		long id = getNextId(primaryKey.getMaxIdSql());
 		for (Entry<Long, RowAction> rowActionRow : rowActionResult.entrySet()) {
-			if(RowAction.UNACCEPTED.equals(rowActionRow.getValue())) {
+			if(RowAction.USE_EXISTING_ROW_LOOKUP_KEY.equals(rowActionRow.getValue())) {
 				id = getNextId(id);
 				sourceTable.changeCell(primaryKey.getColumn().getName(), rowActionRow.getKey(), id);
 			} else if(RowAction.IGNORE.equals(rowActionRow.getValue())) {
 				sourceTable.remove(rowActionRow.getKey());
-				
 			}
 		}
 	}

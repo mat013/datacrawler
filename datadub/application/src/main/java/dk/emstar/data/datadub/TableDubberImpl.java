@@ -16,25 +16,25 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
-import dk.emstar.data.datadub.fun.RowAction;
-import dk.emstar.data.datadub.fun.RowActionSelector;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
+import dk.emstar.data.datadub.modification.RowAction;
+import dk.emstar.data.datadub.modification.RowActionSelector;
 import dk.emstar.data.datadub.repository.TableDataRepository;
 
 @Component
-public class TableCopierImpl implements TableCopier {
+public class TableDubberImpl implements TableDubber {
 	
-//	private final TableDataRepository sourceTableDataRepository;
-//	private final TableDataRepository destinationTableDataRepository;
-
-	private static final Logger logger = LoggerFactory.getLogger(TableCopierImpl.class);
+	private static final Logger logger = LoggerFactory.getLogger(TableDubberImpl.class);
+	
+	private final TableDataRepository sourceTableDataRepository;
+	private final TableDataRepository destinationTableDataRepository;
 	
 	@Autowired
-	public TableCopierImpl(@Qualifier("sourceTableDataRepository") TableDataRepository sourceTableDataRepository,
+	public TableDubberImpl(@Qualifier("sourceTableDataRepository") TableDataRepository sourceTableDataRepository,
 			@Qualifier("destinationTableDataRepository")  TableDataRepository destinationTableDataRepository) {
-//		this.sourceTableDataRepository = sourceTableDataRepository;
-//		this.destinationTableDataRepository = destinationTableDataRepository;
+				this.sourceTableDataRepository = sourceTableDataRepository;
+				this.destinationTableDataRepository = destinationTableDataRepository;
 	}
 
 	

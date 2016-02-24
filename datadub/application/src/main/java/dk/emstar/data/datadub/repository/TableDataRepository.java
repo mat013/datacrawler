@@ -5,9 +5,9 @@ import java.util.Map;
 
 import com.google.common.collect.Table;
 
-import dk.emstar.data.datadub.fun.RowAction;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
+import dk.emstar.data.datadub.modification.RowAction;
 
 public interface TableDataRepository {
 
