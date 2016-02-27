@@ -1,0 +1,16 @@
+source:
+    datasource:
+        driverClassName: org.postgresql.Driver
+        url: jdbc:postgresql://127.0.0.1:5432/postgres
+        username: test1
+        password: test1
+    schema: src
+
+destination:
+    datasource:
+        driverClassName: org.postgresql.Driver
+        url: jdbc:postgresql://127.0.0.1:5432/postgres
+        username: test2
+        password: test2
+    schema: dest
+        

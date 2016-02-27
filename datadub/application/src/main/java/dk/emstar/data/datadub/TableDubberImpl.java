@@ -24,7 +24,7 @@ import dk.emstar.data.datadub.repository.TableDataRepository;
 
 @Component
 public class TableDubberImpl implements TableDubber {
-	
+
 	private static final Logger logger = LoggerFactory.getLogger(TableDubberImpl.class);
 	
 	private final TableDataRepository sourceTableDataRepository;
