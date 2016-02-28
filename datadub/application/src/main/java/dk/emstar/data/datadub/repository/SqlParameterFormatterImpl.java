@@ -13,22 +13,22 @@ public class SqlParameterFormatterImpl implements SqlParameterFormatter {
 		}
 		
 		switch (columnData.getJdbcType()) {
-			case Types.FLOAT:
-			case Types.DOUBLE:
-			case Types.DECIMAL:
-			case Types.INTEGER:
-			case Types.REAL:
-			case Types.SMALLINT:
-			case Types.NUMERIC:
+			case FLOAT:
+			case DOUBLE:
+			case DECIMAL:
+			case INTEGER:
+			case REAL:
+			case SMALLINT:
+			case NUMERIC:
 				return value.toString();
-			case Types.CHAR:
-			case Types.VARCHAR:
+			case CHAR:
+			case VARCHAR:
 				return String.format("'%s'", value.toString());
-			case Types.TIME:
-			case Types.TIME_WITH_TIMEZONE:
-			case Types.TIMESTAMP:
-			case Types.TIMESTAMP_WITH_TIMEZONE:
-			case Types.DATE:
+			case TIME:
+			case TIME_WITH_TIMEZONE:
+			case TIMESTAMP:
+			case TIMESTAMP_WITH_TIMEZONE:
+			case DATE:
 			default:
 				throw new IllegalArgumentException(
 						String.format("Type % is not yet supported", columnData.getJdbcType()));

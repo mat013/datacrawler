@@ -1,14 +1,19 @@
 package dk.emstar.data.datadub.metadata;
 
+import java.sql.JDBCType;
+
 public class ColumnMetaData {
 	private final TableNameIdentifier tableNameIdentifier;
 	private final String name;
-	private final int jdbcType;
+	private final JDBCType jdbcType;
+	private final boolean isMetadataInformation;
+//	private final boolean isNotNullColumn;
 	
-	public ColumnMetaData(TableNameIdentifier tableNameIdentifier, String name, int jdbcType) {
+	public ColumnMetaData(TableNameIdentifier tableNameIdentifier, String name, JDBCType jdbcType, boolean isMetadataInformation) {
 		this.tableNameIdentifier = tableNameIdentifier;
 		this.name = name;
 		this.jdbcType = jdbcType;
+		this.isMetadataInformation = isMetadataInformation;
 	}
 	
 	public TableNameIdentifier getTableNameIdentifier() {
@@ -19,8 +24,12 @@ public class ColumnMetaData {
 		return name;
 	}
 
-	public int getJdbcType() {
+	public JDBCType getJdbcType() {
 		return jdbcType;
+	}
+	
+	public boolean isMetadataInformation() {
+		return isMetadataInformation;
 	}
 
 	@Override

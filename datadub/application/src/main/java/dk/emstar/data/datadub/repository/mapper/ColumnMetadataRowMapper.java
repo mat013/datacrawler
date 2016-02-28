@@ -1,5 +1,6 @@
 package dk.emstar.data.datadub.repository.mapper;
 
+import java.sql.JDBCType;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -18,7 +19,8 @@ public class ColumnMetadataRowMapper implements RowMapper<ColumnMetaData> {
 		// TODO use flyweight pattern
 		TableNameIdentifier tableNameIdentifier = new TableNameIdentifier(rs.getString("TABLE_CAT"), rs.getString("TABLE_SCHEM"), rs.getString("TABLE_NAME"));
 				
-		ColumnMetaData result = new ColumnMetaData(tableNameIdentifier, rs.getString("COLUMN_NAME"), rs.getInt("DATA_TYPE"));
+		ColumnMetaData result = new ColumnMetaData(tableNameIdentifier, rs.getString("COLUMN_NAME"), 
+				JDBCType.valueOf(rs.getInt("DATA_TYPE")), false);
 		return result;
 	}
 	

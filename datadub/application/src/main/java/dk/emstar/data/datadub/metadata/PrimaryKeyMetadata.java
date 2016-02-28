@@ -16,8 +16,8 @@ public class PrimaryKeyMetadata {
 
 	public String getMaxIdSql() {
 		switch(column.getJdbcType()) {
-		case Types.NUMERIC:
-		case Types.DECIMAL:
+		case NUMERIC:
+		case DECIMAL:
 			return getMaxIdNumericSql();
 		default:
 			throw new IllegalArgumentException(String.format("%d is not supported", column.getJdbcType()));
