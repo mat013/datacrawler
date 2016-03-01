@@ -3,19 +3,19 @@ package dk.emstar.data.datadub.metadata;
 public class RowId {
 
 	private final long id;
-	private final TableNameIdentifier tableNameIdentifier;
+	private final TableData table;
 
-	public RowId(long id, TableNameIdentifier tableNameIdentifier) {
+	public RowId(long id, TableData table) {
 		this.id = id;
-		this.tableNameIdentifier = tableNameIdentifier;
+		this.table = table;
 	}
 
 	public long getId() {
 		return id;
 	}
 
-	public TableNameIdentifier getTableNameIdentifier() {
-		return tableNameIdentifier;
+	public TableData getTable() {
+		return table;
 	}
 
 	@Override
@@ -23,7 +23,7 @@ public class RowId {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (int) (id ^ (id >>> 32));
-		result = prime * result + ((tableNameIdentifier == null) ? 0 : tableNameIdentifier.hashCode());
+		result = prime * result + ((table == null) ? 0 : table.hashCode());
 		return result;
 	}
 
@@ -38,11 +38,16 @@ public class RowId {
 		RowId other = (RowId) obj;
 		if (id != other.id)
 			return false;
-		if (tableNameIdentifier == null) {
-			if (other.tableNameIdentifier != null)
+		if (table == null) {
+			if (other.table != null)
 				return false;
-		} else if (!tableNameIdentifier.equals(other.tableNameIdentifier))
+		} else if (!table.equals(other.table))
 			return false;
 		return true;
+	}
+	
+	@Override
+	public String toString() {
+		return String.format("%x", id);
 	}
 }
