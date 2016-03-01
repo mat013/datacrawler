@@ -1,6 +1,6 @@
 package dk.emstar.data.datadub.metadata;
 
-public class DownstreamNonDeclaredReferenceColumnMetaData {
+public class UpstreamReferenceUndeclaredColumnMetaData {
 	
 	private final String foreignConstraintName;
 	private final String columnName;
@@ -9,7 +9,7 @@ public class DownstreamNonDeclaredReferenceColumnMetaData {
 	private final String foreignColumnName;
 	private final long columnIndex;
 
-	public DownstreamNonDeclaredReferenceColumnMetaData(String foreignConstraintName, String columnName, TableNameIdentifier foreignTableNameIdenfier, String foreignColumnName, long columnIndex) {
+	public UpstreamReferenceUndeclaredColumnMetaData(String foreignConstraintName, String columnName, TableNameIdentifier foreignTableNameIdenfier, String foreignColumnName, long columnIndex) {
 		this.foreignConstraintName = foreignConstraintName;
 		this.columnName = columnName;
 		this.foreignTableNameIdenfier = foreignTableNameIdenfier;

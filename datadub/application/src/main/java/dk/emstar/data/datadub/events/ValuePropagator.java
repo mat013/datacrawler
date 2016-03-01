@@ -21,12 +21,12 @@ public class ValuePropagator implements OnCellChangeSink {
 	@Override
 	public void onCellChange(ColumnMetaData columnMetaData, Object matchingValue, Object value) {
 		
-		Table<Long, String, Object> tableData = dependentTable.getTableData();
+		Table<Long, String, Object> data = dependentTable.getData();
 		String columnName = columnToChange.getName();
-		for(Entry<Long, Object> row : Lists.newArrayList(tableData.column(columnName).entrySet())) {
+		for(Entry<Long, Object> row : Lists.newArrayList(data.column(columnName).entrySet())) {
 			Object currentValue = row.getValue();
 			if(matchingValue.equals(currentValue)) {
-				tableData.put(row.getKey(), columnName, value);
+				data.put(row.getKey(), columnName, value);
 			}
 		}
 	}
