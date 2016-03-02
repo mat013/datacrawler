@@ -46,7 +46,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 				Object value = entry.getValue();
 				try {
 					if(value != null) {
-						data.put(new RowId(count++, this), entry.getKey(), value);
+						data.put(new RowId(count, this), entry.getKey(), value);
 					}
 				} catch(Exception e) {
 					throw new RuntimeException(String.format("Error when inserting %x, %s, %s: %s", count, entry.getKey(), value, e.getMessage()), e);
@@ -156,7 +156,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 	}
 
 	public Map<String, Object> getRow(RowId rowId) {
-		return data.rowMap().remove(rowId);
+		return data.rowMap().get(rowId);
 	}
 	
 	// TODO should be moved out

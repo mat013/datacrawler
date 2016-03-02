@@ -52,6 +52,6 @@ public class RowId {
 	
 	@Override
 	public String toString() {
-		return String.format("%x", id);
+		return String.format("%d", id);
 	}
 }

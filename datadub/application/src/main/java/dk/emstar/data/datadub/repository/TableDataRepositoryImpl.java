@@ -65,11 +65,16 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 		PrimaryKeyMetadata primaryKey = primaryKeyMetadatas.get(0);
 		long id = getNextId(primaryKey.getMaxIdSql());
 		for (Entry<RowId, RowAction> rowActionRow : rowActionResult.entrySet()) {
-			if(RowAction.USE_EXISTING_ROW_LOOKUP_KEY.equals(rowActionRow.getValue())) {
-				id = getNextId(id);
-				sourceTable.changeCell(primaryKey.getColumn().getName(), rowActionRow.getKey(), id);
-			} else if(RowAction.IGNORE.equals(rowActionRow.getValue())) {
-				sourceTable.remove(rowActionRow.getKey());
+			switch(rowActionRow.getValue()) {
+				case USE_EXISTING_ROW_LOOKUP_KEY:
+					id = getNextId(id);
+					sourceTable.changeCell(primaryKey.getColumn().getName(), rowActionRow.getKey(), id);
+					break;
+				case IGNORE:
+					sourceTable.remove(rowActionRow.getKey());
+					break;
+				default:
+				
 			}
 		}
 	}
@@ -113,8 +118,13 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 		
 		for (Entry<RowId, RowAction> rowActionRow : rowActionResult.entrySet()) {
 			Map<String, Object> rowData = sourceTable.getRow(rowActionRow.getKey());
-			logger.info("Persisting: {}", rowData);
-			jdbcOperations.update(sql, rowData);
+			Map<String, Object> args = Maps.newHashMap();
+			for (ColumnMetaData column : columns) {
+				args.put(column.getName(), rowData.get(column.getName()));
+			}
+
+			logger.info("Persisting: {}", args);
+			jdbcOperations.update(sql, args);
 		}
 	}
 
