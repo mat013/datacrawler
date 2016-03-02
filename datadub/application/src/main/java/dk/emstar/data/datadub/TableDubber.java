@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Predicate;
 
+import dk.emstar.data.datadub.metadata.RowId;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
 import dk.emstar.data.datadub.modification.RowAction;
@@ -14,15 +15,15 @@ import dk.emstar.data.datadub.repository.TableDataRepository;
 public interface TableDubber {
 
 	void persist(Map<TableNameIdentifier, TableData> sourceTables,
-			Map<TableNameIdentifier, Map<Long, RowAction>> actions, Map<TableNameIdentifier, TableData> mirrorTables,
+			Map<TableNameIdentifier, Map<RowId, RowAction>> actions, Map<TableNameIdentifier, TableData> mirrorTables,
 			TableDataRepository tableDataRepository,
 			Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper);
 
-	void apply(Map<TableNameIdentifier, Map<Long, RowAction>> actions, Map<TableNameIdentifier, TableData> sourceTables,
+	void apply(Map<TableNameIdentifier, Map<RowId, RowAction>> actions, Map<TableNameIdentifier, TableData> sourceTables,
 			Map<TableNameIdentifier, TableData> mirrorTables, TableDataRepository tableDataRepository,
 			Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper);
 
-	Map<TableNameIdentifier, Map<Long, RowAction>> determineAction(Map<TableNameIdentifier, TableData> sourceTables,
+	Map<TableNameIdentifier, Map<RowId, RowAction>> determineAction(Map<TableNameIdentifier, TableData> sourceTables,
 			Map<TableNameIdentifier, TableData> mirrorTables, RowActionSelector rowActionCategorizer,
 			Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper);
 
@@ -34,6 +35,6 @@ public interface TableDubber {
 			Predicate<TableNameIdentifier> whiteListPredicate, TableDataRepository tableDataRepository);
 
 	List<String> getInsertStatements(TableDataRepository tableDataRepository, TableData sourceTable,
-			TableData destinationTable, Map<Long, RowAction> actions);
+			TableData destinationTable, Map<RowId, RowAction> actions);
 
 }

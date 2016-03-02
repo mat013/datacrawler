@@ -1,5 +1,14 @@
 
--- SET search_path TO dest;
+drop table order_line
+drop table product; 
+drop table "order"
+drop table person
+drop table producer
+drop table address
+drop table zip
+drop table country
+
+SET search_path TO source;
 
 
 CREATE TABLE country
@@ -49,6 +58,7 @@ CREATE TABLE person
 CREATE TABLE "order"
 (
   id numeric NOT NULL,
+  orderid character varying(50),
   responsible_fk_id numeric,
   delivery_fk_id numeric,
   CONSTRAINT order_pk PRIMARY KEY (id),

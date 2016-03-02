@@ -2,6 +2,7 @@ package dk.emstar.data.datadub.configuration;
 
 import javax.sql.DataSource;
 
+import org.postgresql.ds.PGSimpleDataSource;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -15,6 +16,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.FilterType;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.jdbc.datasource.DriverManagerDataSource;
 
 import dk.emstar.data.datadub.Application;
 import dk.emstar.data.datadub.repository.MetadataRepository;
@@ -31,18 +33,24 @@ public class SpringConfig {
 	@Bean
 	@ConfigurationProperties(prefix="source.datasource")
 	public DataSource sourceDataSource() {
-	    return DataSourceBuilder
-	            .create()
-	            .build();
+		DriverManagerDataSource result = new DriverManagerDataSource();
+		return result;
+//	    return DataSourceBuilder
+//	            .create()
+//	            .build();
 	}
 	
 	@Bean
 	@ConfigurationProperties(prefix="destination.datasource")
 	public DataSource destinationDataSource() {
-	    return DataSourceBuilder
-	            .create()
-	            .build();
+		DriverManagerDataSource result = new DriverManagerDataSource();
+		return result;
+//	    return DataSourceBuilder
+//	            .create()
+//	            .build();
 	}
+	
+	
 	
 	@Bean
 	public NamedParameterJdbcOperations  sourceJdbcTemplate(@Qualifier("sourceDataSource") DataSource dataSource) {

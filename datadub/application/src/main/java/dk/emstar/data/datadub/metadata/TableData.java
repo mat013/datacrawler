@@ -32,7 +32,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 	private static final Logger logger = LoggerFactory.getLogger(TableData.class);
 	
 	private final TableMetadata tableMetaData;
-	private final Table<Long, String, Object> data = HashBasedTable.create();
+	private final Table<RowId, String, Object> data = HashBasedTable.create();
 
 	private final List<OnCellChangeSink> onCellChangeSinks = Lists.newArrayList();
 	
@@ -46,7 +46,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 				Object value = entry.getValue();
 				try {
 					if(value != null) {
-						data.put(count, entry.getKey(), value);
+						data.put(new RowId(count++, this), entry.getKey(), value);
 					}
 				} catch(Exception e) {
 					throw new RuntimeException(String.format("Error when inserting %x, %s, %s: %s", count, entry.getKey(), value, e.getMessage()), e);
@@ -59,7 +59,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 		return tableMetaData;
 	}
 
-	public Table<Long, String, Object> getData() {
+	public Table<RowId, String, Object> getData() {
 		return data;
 	}
 
@@ -77,11 +77,11 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 				.collect(Collectors.toSet());
 	}
 
-	public Map<Map<String, Object>, Long> getPrimaryKeysIndex() {
-		Map<Map<String, Object>, Long> result = Maps.newHashMap();
+	public Map<Map<String, Object>, RowId> getPrimaryKeysIndex() {
+		Map<Map<String, Object>, RowId> result = Maps.newHashMap();
 
 		List<PrimaryKeyMetadata> primaryKeys = tableMetaData.getPrimaryKeys();
-		for (Entry<Long, Map<String, Object>> row : data.rowMap().entrySet()) {
+		for (Entry<RowId, Map<String, Object>> row : data.rowMap().entrySet()) {
 			Map<String, Object> key = Maps.newHashMap();
 			for (PrimaryKeyMetadata primaryKeyMetadata : primaryKeys) {
 				ColumnMetaData column = primaryKeyMetadata.getColumn();
@@ -94,11 +94,11 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 		return result;
 	}
 	
-	public Table<Long, String, Object> getPrimaryKeysValues() {
-		Table<Long, String, Object> result = HashBasedTable.create();
+	public Table<RowId, String, Object> getPrimaryKeysValues() {
+		Table<RowId, String, Object> result = HashBasedTable.create();
 
 		List<PrimaryKeyMetadata> primaryKeys = tableMetaData.getPrimaryKeys();
-		for (Entry<Long, Map<String, Object>> row : data.rowMap().entrySet()) {
+		for (Entry<RowId, Map<String, Object>> row : data.rowMap().entrySet()) {
 			for (PrimaryKeyMetadata primaryKeyMetadata : primaryKeys) {
 				ColumnMetaData column = primaryKeyMetadata.getColumn();
 				String name = column.getName();
@@ -109,8 +109,8 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 		return result;
 	}
 
-	public Object changeCell(String columnName, long row, Object to) {
-		if(data.size() < row) {
+	public Object changeCell(String columnName, RowId row, Object to) {
+		if(data.size() < row.getId()) {
 			throw new IllegalArgumentException(String.format("Index out of bounds Trying to access row %d in a table which has %d row(s)", row, data.size()));
 		}
 		
@@ -142,7 +142,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 	// TODO another name with a formatter
 	public String toContent() {
 		StringBuilder stringBuilder = new StringBuilder();
-		for (Entry<Long, Map<String, Object>> row : data.rowMap().entrySet()) {
+		for (Entry<RowId, Map<String, Object>> row : data.rowMap().entrySet()) {
 			if(stringBuilder.length() != 0) {
 				stringBuilder.append("\r\n");
 			}
@@ -155,15 +155,15 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 		return stringBuilder.toString();
 	}
 
-	public Map<String, Object> getRow(Long rowId) {
+	public Map<String, Object> getRow(RowId rowId) {
 		return data.rowMap().remove(rowId);
 	}
 	
 	// TODO should be moved out
-	public Map<Long, RowAction> determineRowActions(TableData mirrorTable, RowActionSelector rowAcceptor) {
-		Map<Map<String, Object>, Long> mirrorIndex = mirrorTable.getPrimaryKeysIndex();
-		Map<Long, RowAction> result = Maps.newHashMap();
-		for (Entry<Map<String, Object>, Long> indexRow : getPrimaryKeysIndex().entrySet()) {
+	public Map<RowId, RowAction> determineRowActions(TableData mirrorTable, RowActionSelector rowAcceptor) {
+		Map<Map<String, Object>, RowId> mirrorIndex = mirrorTable.getPrimaryKeysIndex();
+		Map<RowId, RowAction> result = Maps.newHashMap();
+		for (Entry<Map<String, Object>, RowId> indexRow : getPrimaryKeysIndex().entrySet()) {
 			Map<String, Object> sourceRow = getRow(indexRow.getValue());
 			Map<String, Object> mirrorRow = mirrorTable.getRow(mirrorIndex.get(indexRow.getKey()));
 			result.put(indexRow.getValue(), rowAcceptor.selectAction(sourceRow, mirrorRow, tableMetaData, mirrorTable.getMetadata()));
@@ -172,7 +172,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 	}
 
 	// TODO is this the right way?
-	public void remove(long row) {
+	public void remove(RowId row) {
 		for (String column : data.row(row).keySet()) {
 			data.remove(row, column);
 		}
@@ -195,7 +195,7 @@ public class TableData implements Iterable<Map<String, Object>>, OnCellChangeSin
 			return;
 		}
 		
-		for (Entry<Long, Map<String, Object>> row : data.rowMap().entrySet()) {
+		for (Entry<RowId, Map<String, Object>> row : data.rowMap().entrySet()) {
 			for (UpstreamReferenceColumnMetaData column : columnsToBeChecked) {
 				Object oldValue = row.getValue().get(column.getColumnName());
 				if(matchingValue.equals(oldValue)) {

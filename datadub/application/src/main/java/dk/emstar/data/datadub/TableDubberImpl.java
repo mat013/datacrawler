@@ -16,6 +16,7 @@ import org.springframework.stereotype.Component;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
+import dk.emstar.data.datadub.metadata.RowId;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
 import dk.emstar.data.datadub.modification.RowAction;
@@ -48,7 +49,7 @@ public class TableDubberImpl implements TableDubber {
 	 */
 	@Override
 	public void persist(Map<TableNameIdentifier, TableData> sourceTables, 
-			Map<TableNameIdentifier, Map<Long, RowAction>> actions, 
+			Map<TableNameIdentifier, Map<RowId, RowAction>> actions, 
 			Map<TableNameIdentifier, TableData> mirrorTables, 
 			TableDataRepository tableDataRepository, Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper) {
 
@@ -56,21 +57,21 @@ public class TableDubberImpl implements TableDubber {
 		for (TableData sourceTable : sortedTables) {
 			TableNameIdentifier tableIdentifier = tableIdentifierMapper.apply(sourceTable.getTableIdentifier());
 			TableData mirrotTable = mirrorTables.get(tableIdentifier);
-			Map<Long, RowAction> rowActionResult = actions.get(tableIdentifier);
+			Map<RowId, RowAction> rowActionResult = actions.get(tableIdentifier);
 			tableDataRepository.persist(sourceTable, rowActionResult, mirrotTable);
 		}
 		
 	}
 
 	@Override
-	public void apply(Map<TableNameIdentifier, Map<Long, RowAction>> actions,
+	public void apply(Map<TableNameIdentifier, Map<RowId, RowAction>> actions,
 			Map<TableNameIdentifier, TableData> sourceTables, Map<TableNameIdentifier, TableData> mirrorTables, TableDataRepository tableDataRepository, Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper) {
 		List<TableData> sortedTables = sortTopological(sourceTables.values());
 		for (TableData sourceTable : sortedTables) {
 			TableNameIdentifier sourceTableIdentifier = sourceTable.getTableIdentifier();
 			TableNameIdentifier tableIdentifier = tableIdentifierMapper.apply(sourceTableIdentifier);
 			logger.info("Retrieving mirror {} for {}", tableIdentifier, sourceTableIdentifier);
-			Map<Long, RowAction> rowActionResult = actions.get(tableIdentifier);
+			Map<RowId, RowAction> rowActionResult = actions.get(tableIdentifier);
 			TableData mirrorTable = mirrorTables.get(tableIdentifier);
 			tableDataRepository.apply(rowActionResult, mirrorTable, sourceTable);
 		}
@@ -83,9 +84,9 @@ public class TableDubberImpl implements TableDubber {
 	}
 
 	@Override
-	public Map<TableNameIdentifier, Map<Long, RowAction>> determineAction(
+	public Map<TableNameIdentifier, Map<RowId, RowAction>> determineAction(
 			Map<TableNameIdentifier, TableData> sourceTables, Map<TableNameIdentifier, TableData> mirrorTables, RowActionSelector rowActionCategorizer, Function<TableNameIdentifier, TableNameIdentifier> tableIdentifierMapper) {
-		Map<TableNameIdentifier, Map<Long, RowAction>> result = Maps.newHashMap();
+		Map<TableNameIdentifier, Map<RowId, RowAction>> result = Maps.newHashMap();
 
 		for (TableData sourceTable : sourceTables.values()) {
 			
@@ -94,7 +95,7 @@ public class TableDubberImpl implements TableDubber {
 			if(mirrorTable == null) {
 				throw new IllegalArgumentException(String.format("Unable to find %s", mirrorTableIdentifier));
 			}
-			Map<Long, RowAction> actions = sourceTable.determineRowActions(mirrorTable, rowActionCategorizer);
+			Map<RowId, RowAction> actions = sourceTable.determineRowActions(mirrorTable, rowActionCategorizer);
 			result.put(mirrorTableIdentifier, actions);
 		}
 		
@@ -184,7 +185,7 @@ public class TableDubberImpl implements TableDubber {
 
 	@Override
 	public List<String> getInsertStatements(TableDataRepository tableDataRepository, TableData sourceTable,
-			TableData destinationTable, Map<Long, RowAction> actions) {
+			TableData destinationTable, Map<RowId, RowAction> actions) {
 		return tableDataRepository.getInsertStatements(sourceTable, actions, destinationTable);
 	}
 

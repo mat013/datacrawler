@@ -6,6 +6,7 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Table;
 
 import dk.emstar.data.datadub.metadata.ColumnMetaData;
+import dk.emstar.data.datadub.metadata.RowId;
 import dk.emstar.data.datadub.metadata.TableData;
 
 public class ValuePropagator implements OnCellChangeSink {
@@ -21,9 +22,9 @@ public class ValuePropagator implements OnCellChangeSink {
 	@Override
 	public void onCellChange(ColumnMetaData columnMetaData, Object matchingValue, Object value) {
 		
-		Table<Long, String, Object> data = dependentTable.getData();
+		Table<RowId, String, Object> data = dependentTable.getData();
 		String columnName = columnToChange.getName();
-		for(Entry<Long, Object> row : Lists.newArrayList(data.column(columnName).entrySet())) {
+		for(Entry<RowId, Object> row : Lists.newArrayList(data.column(columnName).entrySet())) {
 			Object currentValue = row.getValue();
 			if(matchingValue.equals(currentValue)) {
 				data.put(row.getKey(), columnName, value);

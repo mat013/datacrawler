@@ -5,6 +5,10 @@ public class RowId {
 	private final long id;
 	private final TableData table;
 
+	public RowId(long id) {
+		this(id, null);
+	}
+	
 	public RowId(long id, TableData table) {
 		this.id = id;
 		this.table = table;

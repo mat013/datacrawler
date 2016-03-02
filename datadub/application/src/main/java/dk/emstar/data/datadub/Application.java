@@ -17,6 +17,7 @@ import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 import dk.emstar.data.datadub.configuration.SpringConfig;
+import dk.emstar.data.datadub.metadata.RowId;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableMetadata;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
@@ -64,12 +65,14 @@ public class Application  {
 		}
 
 		@Override
-		public void run(String... args) {
-			TableNameIdentifier tableIdentifier = new TableNameIdentifier("src", "order"); 
+		public void run(String... args) throws Exception {
+			Thread.sleep(1000);
 			
-			Table<Long, String, Object> keys = HashBasedTable.create();
-			keys.put((long) keys.size(), "ID", 1);
-			keys.put((long) keys.size(), "ID", 2);
+			TableNameIdentifier tableIdentifier = new TableNameIdentifier("source", "order"); 
+			
+			Table<RowId, String, Object> keys = HashBasedTable.create();
+			keys.put(new RowId(keys.size()), "ID", 1);
+			keys.put(new RowId(keys.size()), "ID", 2);
 
 			TableData sourceTable = sourceTableDataRepository.get(tableIdentifier, keys);
 
@@ -88,18 +91,18 @@ public class Application  {
 				}
 			};
 
-			Map<TableNameIdentifier, Map<Long, RowAction>> actions = tableDubber.determineAction(sourceTables, mirrorTables, rowActionCategorizer, sourceToMirrorMapper);
+			Map<TableNameIdentifier, Map<RowId, RowAction>> actions = tableDubber.determineAction(sourceTables, mirrorTables, rowActionCategorizer, sourceToMirrorMapper);
 			tableDubber.apply(actions, sourceTables, mirrorTables, destinationTableDataRepository, sourceToMirrorMapper);
 			for (TableData sourceTable1 : sourceTables.values()) {
-				logger.info("{}\r\n{}", sourceTable1.getTableIdentifier(), sourceTable1.toContent());
+				logger.info("Table found: {}\r\n{}", sourceTable1.getTableIdentifier(), sourceTable1.toContent());
 			}
 			
 			for (TableData sourceTable1 : sourceTables.values()) {
 				TableNameIdentifier mirrorTableIdentifier = sourceToMirrorMapper.apply(sourceTable1.getTableIdentifier());
 				TableData mirrorTableData = mirrorTables.get(mirrorTableIdentifier);
-				Map<Long, RowAction> actionList = actions.get(mirrorTableIdentifier);
+				Map<RowId, RowAction> actionList = actions.get(mirrorTableIdentifier);
 				
-				logger.info("{}\r\n{}", sourceTable1.getTableIdentifier(), 
+				logger.info("Table inserts: {}\r\n{}", sourceTable1.getTableIdentifier(), 
 						Joiner.on("\r\n").join(tableDubber.getInsertStatements(destinationTableDataRepository, sourceTable1, mirrorTableData, actionList)));
 			}
 

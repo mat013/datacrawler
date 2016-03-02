@@ -18,6 +18,7 @@ import com.google.common.collect.Table;
 import dk.emstar.data.datadub.metadata.ColumnMetaData;
 import dk.emstar.data.datadub.metadata.DownstreamReferenceColumnMetaData;
 import dk.emstar.data.datadub.metadata.PrimaryKeyMetadata;
+import dk.emstar.data.datadub.metadata.RowId;
 import dk.emstar.data.datadub.metadata.TableData;
 import dk.emstar.data.datadub.metadata.TableMetadata;
 import dk.emstar.data.datadub.metadata.TableNameIdentifier;
@@ -52,7 +53,7 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 	}
 
 	@Override
-	public void apply(Map<Long, RowAction> rowActionResult, TableData mirrorTable, TableData sourceTable) {
+	public void apply(Map<RowId, RowAction> rowActionResult, TableData mirrorTable, TableData sourceTable) {
 		List<PrimaryKeyMetadata> primaryKeyMetadatas = mirrorTable.getMetadata().getPrimaryKeys();
 		if(primaryKeyMetadatas.size() != 1) {
 			String columnNames = Joiner.on(", ").join(primaryKeyMetadatas.stream()
@@ -63,7 +64,7 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 
 		PrimaryKeyMetadata primaryKey = primaryKeyMetadatas.get(0);
 		long id = getNextId(primaryKey.getMaxIdSql());
-		for (Entry<Long, RowAction> rowActionRow : rowActionResult.entrySet()) {
+		for (Entry<RowId, RowAction> rowActionRow : rowActionResult.entrySet()) {
 			if(RowAction.USE_EXISTING_ROW_LOOKUP_KEY.equals(rowActionRow.getValue())) {
 				id = getNextId(id);
 				sourceTable.changeCell(primaryKey.getColumn().getName(), rowActionRow.getKey(), id);
@@ -79,13 +80,13 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 
 	@Override
 	public TableData findMirrorTable(TableData table) {
-		Table<Long, String, Object> keysForOtherPartTable = table.getPrimaryKeysValues();
+		Table<RowId, String, Object> keysForOtherPartTable = table.getPrimaryKeysValues();
 		TableData result = get(new TableNameIdentifier(schema, table.getTableIdentifier().getTableName()), keysForOtherPartTable);
 		return result;
 	}
 
 	@Override
-	public TableData get(TableNameIdentifier tableNameIdentifier, Table<Long, String, Object> keysForOtherPartTable) {
+	public TableData get(TableNameIdentifier tableNameIdentifier, Table<RowId, String, Object> keysForOtherPartTable) {
 		Map<String, String> columnToFieldMap = keysForOtherPartTable.columnKeySet().stream()
 				.collect(Collectors.toMap(o -> o, o -> o));
 		
@@ -96,11 +97,12 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 	private Long getNextId(String sql) {
 		logger.info(sql);
 		
-		return jdbcOperations.queryForObject(sql, Maps.newHashMap(), Long.class);
+		Long result = jdbcOperations.queryForObject(sql, Maps.newHashMap(), Long.class);
+		return result == null ? 0L : result;
 	}
 	
 	@Override
-	public void persist(TableData sourceTable, Map<Long, RowAction> rowActionResult, TableData destination) {
+	public void persist(TableData sourceTable, Map<RowId, RowAction> rowActionResult, TableData destination) {
 		TableMetadata metadata = destination.getMetadata();
 		List<ColumnMetaData> columns = metadata.getColumns();
 		String sql = String.format("insert into %s(%s) values(%s)", 
@@ -109,7 +111,7 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 				Joiner.on(", ").join(columns.stream().map(o -> String.format(":%s", o.getName())).collect(Collectors.toList())));
 		logger.info(sql);
 		
-		for (Entry<Long, RowAction> rowActionRow : rowActionResult.entrySet()) {
+		for (Entry<RowId, RowAction> rowActionRow : rowActionResult.entrySet()) {
 			Map<String, Object> rowData = sourceTable.getRow(rowActionRow.getKey());
 			logger.info("Persisting: {}", rowData);
 			jdbcOperations.update(sql, rowData);
@@ -117,11 +119,11 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 	}
 
 	@Override
-	public List<String> getInsertStatements(TableData tableData, Map<Long, RowAction> rowActionResult, TableData destination) {
+	public List<String> getInsertStatements(TableData tableData, Map<RowId, RowAction> rowActionResult, TableData destination) {
 		return getInsertStatements(tableData, rowActionResult, destination, new SqlParameterFormatterImpl());
 	}
 
-	private List<String> getInsertStatements(TableData tableData, Map<Long, RowAction> rowActionResult,
+	private List<String> getInsertStatements(TableData tableData, Map<RowId, RowAction> rowActionResult,
 			TableData destination, SqlParameterFormatter formatter) {
 		TableMetadata metadata = destination.getMetadata();
 		List<ColumnMetaData> columns = metadata.getColumns();
@@ -132,7 +134,7 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 				"%s");
 
 		List<String> result = Lists.newArrayList();
-		for (Entry<Long, RowAction> rowActionRow : rowActionResult.entrySet()) {
+		for (Entry<RowId, RowAction> rowActionRow : rowActionResult.entrySet()) {
 			Map<String, Object> rowData = tableData.getRow(rowActionRow.getKey());
 			List<String> args = Lists.newArrayList();
 			for (ColumnMetaData column : columns) {
@@ -147,7 +149,7 @@ public class TableDataRepositoryImpl implements TableDataRepository {
 	
 	
 	@Override
-	public TableData get(TableNameIdentifier tableIdentifier, Map<String, String> columnToFieldMap, Table<Long, String, Object> keys) {
+	public TableData get(TableNameIdentifier tableIdentifier, Map<String, String> columnToFieldMap, Table<RowId, String, Object> keys) {
 		// TODO check for duplicates
 		
 		TableMetadata tableMetaData = metadataRepository.getMetaData(tableIdentifier);
