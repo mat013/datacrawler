@@ -2,11 +2,11 @@ package dk.emstar.data.datadub.metadata;
 
 public class NullValue {
 
-	public static NullValue instance = new NullValue(); 
+    public static NullValue instance = new NullValue();
 
-	@Override
-	public String toString() {
-		return "<null>";
-	}
-	
+    @Override
+    public String toString() {
+        return "<null>";
+    }
+
 }

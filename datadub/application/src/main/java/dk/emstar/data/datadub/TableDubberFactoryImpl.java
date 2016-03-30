@@ -7,9 +7,9 @@ import dk.emstar.data.datadub.repository.TableDataRepository;
 @Component
 public class TableDubberFactoryImpl implements TableDubberFactory {
 
-	@Override
-	public TableDubber newTableDubber(TableDataRepository source, TableDataRepository destination) {
-		return new TableDubberImpl(source, destination);
-	}
+    @Override
+    public TableDubber newTableDubber(TableDataRepository source, TableDataRepository destination) {
+        return new TableDubberImpl(source, destination);
+    }
 
 }

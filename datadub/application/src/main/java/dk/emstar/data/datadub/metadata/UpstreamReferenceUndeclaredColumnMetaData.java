@@ -1,46 +1,45 @@
 package dk.emstar.data.datadub.metadata;
 
 public class UpstreamReferenceUndeclaredColumnMetaData {
-	
-	private final String foreignConstraintName;
-	private final String columnName;
-	
-	private final TableNameIdentifier foreignTableNameIdenfier;
-	private final String foreignColumnName;
-	private final long columnIndex;
 
-	public UpstreamReferenceUndeclaredColumnMetaData(String foreignConstraintName, String columnName, TableNameIdentifier foreignTableNameIdenfier, String foreignColumnName, long columnIndex) {
-		this.foreignConstraintName = foreignConstraintName;
-		this.columnName = columnName;
-		this.foreignTableNameIdenfier = foreignTableNameIdenfier;
-		this.foreignColumnName = foreignColumnName;
-		this.columnIndex = columnIndex;
-	}
+    private final String foreignConstraintName;
+    private final String columnName;
 
-	public String getForeignConstraintName() {
-		return foreignConstraintName;
-	}
+    private final TableNameIdentifier foreignTableNameIdenfier;
+    private final String foreignColumnName;
+    private final long columnIndex;
 
-	public String getColumnName() {
-		return columnName;
-	}
+    public UpstreamReferenceUndeclaredColumnMetaData(String foreignConstraintName, String columnName, TableNameIdentifier foreignTableNameIdenfier,
+            String foreignColumnName, long columnIndex) {
+        this.foreignConstraintName = foreignConstraintName;
+        this.columnName = columnName;
+        this.foreignTableNameIdenfier = foreignTableNameIdenfier;
+        this.foreignColumnName = foreignColumnName;
+        this.columnIndex = columnIndex;
+    }
 
-	
-	public TableNameIdentifier getForeignTableNameIdenfier() {
-		return foreignTableNameIdenfier;
-	}
+    public String getForeignConstraintName() {
+        return foreignConstraintName;
+    }
 
-	public long getColumnIndex() {
-		return columnIndex;
-	}
+    public String getColumnName() {
+        return columnName;
+    }
 
-	public String getForeignColumnName() {
-		return foreignColumnName;
-	}
+    public TableNameIdentifier getForeignTableNameIdenfier() {
+        return foreignTableNameIdenfier;
+    }
 
-	@Override
-	public String toString() {
-		return String.format("(%s, %s, %s, %s, %x)",
-				foreignConstraintName, columnName, foreignTableNameIdenfier, foreignColumnName, columnIndex);
-	}
+    public long getColumnIndex() {
+        return columnIndex;
+    }
+
+    public String getForeignColumnName() {
+        return foreignColumnName;
+    }
+
+    @Override
+    public String toString() {
+        return String.format("(%s, %s, %s, %s, %x)", foreignConstraintName, columnName, foreignTableNameIdenfier, foreignColumnName, columnIndex);
+    }
 }

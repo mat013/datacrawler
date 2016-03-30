@@ -12,31 +12,31 @@ import dk.emstar.data.datadub.modification.RowAction;
 
 public interface TableDataRepository {
 
-	TableData get(TableNameIdentifier tableIdentifier, Table<RowId, String, Object> keys);
+    TableData get(TableNameIdentifier tableIdentifier, Table<RowId, String, Object> keys);
 
-	/**
-	 * Get tableIdentifier using the primary key
-	 * 
-	 * @param tableIdentifier
-	 * @param tableData
-	 * @return
-	 */
-	TableData getByPrimaryKey(TableNameIdentifier tableIdentifier, TableData tableData);
-	TableData getByReferenceKey(TableNameIdentifier tableIdentifier, TableData tableData);
-	TableData getByMirror(TableNameIdentifier tableIdentifier, TableData tableData);
-	
-	
-	TableData get(TableNameIdentifier tableIdentifier, Map<String, String> columnToFieldMap,
-			Table<RowId, String, Object> keys);
+    /**
+     * Get tableIdentifier using the primary key
+     * 
+     * @param tableIdentifier
+     * @param tableData
+     * @return
+     */
+    TableData getByPrimaryKey(TableNameIdentifier tableIdentifier, TableData tableData);
 
-	void persist(TableData tableData, Map<RowId, RowAction> rowActionResult, TableData destination);
+    TableData getByReferenceKey(TableNameIdentifier tableIdentifier, TableData tableData);
 
-	List<String> getInsertStatements(TableData tableData, Map<RowId, RowAction> rowActionResult, TableData destination);
+    TableData getByMirror(TableNameIdentifier tableIdentifier, TableData tableData);
 
-	TableData findMirrorTable(TableData table);
+    TableData get(TableNameIdentifier tableIdentifier, Map<String, String> columnToFieldMap, Table<RowId, String, Object> keys);
 
-	void apply(Map<RowId, RowAction> rowActionResult, TableData mirrorTable, TableData sourceTable);
+    void persist(TableData tableData, Map<RowId, RowAction> rowActionResult, TableData destination);
 
-	String getSchema();
-	
+    List<String> getInsertStatements(TableData tableData, Map<RowId, RowAction> rowActionResult, TableData destination);
+
+    TableData findMirrorTable(TableData table);
+
+    void apply(Map<RowId, RowAction> rowActionResult, TableData mirrorTable, TableData sourceTable);
+
+    String getSchema();
+
 }

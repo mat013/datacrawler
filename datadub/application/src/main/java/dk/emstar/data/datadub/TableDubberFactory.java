@@ -4,5 +4,5 @@ import dk.emstar.data.datadub.repository.TableDataRepository;
 
 public interface TableDubberFactory {
 
-	TableDubber newTableDubber(TableDataRepository source, TableDataRepository destination);
+    TableDubber newTableDubber(TableDataRepository source, TableDataRepository destination);
 }

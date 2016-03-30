@@ -11,17 +11,16 @@ import dk.emstar.data.datadub.metadata.PrimaryKeyMetadata;
 
 public class PrimaryKeyMetadataRowMapper implements RowMapper<PrimaryKeyMetadata> {
 
-	private final Map<String, ColumnMetaData> columnMap;
+    private final Map<String, ColumnMetaData> columnMap;
 
-	
-	public PrimaryKeyMetadataRowMapper(Map<String, ColumnMetaData> columnMap) {
-		this.columnMap = columnMap;
-	}
+    public PrimaryKeyMetadataRowMapper(Map<String, ColumnMetaData> columnMap) {
+        this.columnMap = columnMap;
+    }
 
-	@Override
-	public PrimaryKeyMetadata mapRow(ResultSet rs, int rowNum) throws SQLException {
-		ColumnMetaData column = columnMap.get(rs.getString("COLUMN_NAME"));
-		PrimaryKeyMetadata result = new PrimaryKeyMetadata(rs.getString("PK_NAME"), column, rs.getLong("KEY_SEQ"));
-		return result;
-	}
+    @Override
+    public PrimaryKeyMetadata mapRow(ResultSet rs, int rowNum) throws SQLException {
+        ColumnMetaData column = columnMap.get(rs.getString("COLUMN_NAME"));
+        PrimaryKeyMetadata result = new PrimaryKeyMetadata(rs.getString("PK_NAME"), column, rs.getLong("KEY_SEQ"));
+        return result;
+    }
 }

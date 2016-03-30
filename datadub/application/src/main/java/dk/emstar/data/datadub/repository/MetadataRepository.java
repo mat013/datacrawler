@@ -5,6 +5,6 @@ import dk.emstar.data.datadub.metadata.TableNameIdentifier;
 
 public interface MetadataRepository {
 
-	TableMetadata getMetaData(TableNameIdentifier tableNameIdentifier);
+    TableMetadata getMetaData(TableNameIdentifier tableNameIdentifier);
 
 }
